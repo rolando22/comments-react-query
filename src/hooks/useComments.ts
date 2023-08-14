@@ -1,31 +1,47 @@
-import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getComments, postComment } from "../services/comments";
-import type { Comment } from "../types.d";
+import type { Comment, CommentWithId } from "../types.d";
 
 export function useComments() {
-    const [comments, setComments] = useState(getComments());
-    const [isLoading, setIsLoading] = useState(false);
-    const [isError, setIsError] = useState(false);
+    const { data, isLoading, isError } = useQuery(
+        ['comments'],
+        getComments,
+    );
+
+    const queryClient = useQueryClient();
+    
+    const { mutate, isLoading: isLoadingMutation } = useMutation({
+        mutationFn: postComment, 
+        onMutate: async (newComment: Comment) => {
+            await queryClient.cancelQueries(['comments']);
+            const prevComments = queryClient.getQueryData(['comments']);
+            queryClient.setQueryData(['comments'], (oldData?: CommentWithId[]): CommentWithId[] => {
+                const newCommentToAdd = { id: crypto.randomUUID(), ...newComment };
+                if (oldData == null) return [newCommentToAdd];
+                return [...oldData, newCommentToAdd];
+            });
+
+            return { prevComments };
+        },
+        onError: async (error, _, context) => {
+            console.log(error);
+            if (context?.prevComments != null) 
+                queryClient.setQueryData(['comments'], context.prevComments);
+        },
+        onSettled: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['comments'] });
+        },
+    });
 
     const saveComment = (comment: Comment) => {
-        try {
-            setIsLoading(true);
-            setIsError(false);
-            const newComment = postComment(comment);
-            const newComments = [...comments, newComment];
-            setComments(newComments);
-        } catch (error) {
-            setIsError(true);
-            console.log(error);
-        } finally {
-            setIsLoading(false);
-        }
+        mutate(comment);
     };
 
     return {
-        comments,
+        comments: data,
         saveComment, 
         isLoading, 
         isError, 
+        isLoadingMutation, 
     };
 }
