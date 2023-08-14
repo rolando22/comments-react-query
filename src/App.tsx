@@ -1,10 +1,12 @@
 import './App.css';
-import { FormInput, FormTextArea } from './components';
+import { CommentsList, FormInput, FormTextArea } from './components';
 
 export function App() {
     return (
         <main className='grid h-screen grid-cols-2'>
-            <section className='col-span-1 p-8 bg-white'></section>
+            <section className='col-span-1 p-8 bg-white'>
+                <CommentsList />
+            </section>
             <section className='col-span-1 p-8 bg-black'>
                 <form className='block max-w-xl px-4 m-auto'>
                     <FormInput />
