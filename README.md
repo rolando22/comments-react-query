@@ -6,8 +6,9 @@ Este repositorio contiene el código de una aplicación que lista y crea comenta
 
 - Desarrollada con React para manipulación del DOM y reactividad de la aplicación.
 - Vite como empaquetador y SWC como transpilador.
+- TailwindCSS para los estilos.
 - TypeScript para el tipado del código.
 - Uso de TanStack Query para el manejo del estado asíncrono de los comentarios.
 - LocalStorage para la persistencia de los datos.
 
-Puedes ver el demo aquí: ().
+Puedes ver el demo aquí: (https://rolando22.github.io/comments-react-query/).
